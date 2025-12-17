@@ -2,23 +2,30 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fibery Christmas</title>
+
 <style>
+    * {
+        box-sizing: border-box;
+    }
+
     body {
         margin: 0;
-        height: 100vh;
+        min-height: 100vh;
         background: linear-gradient(to bottom, #00111a, #00334d);
         color: white;
-        font-family: 'Arial', sans-serif;
+        font-family: Arial, sans-serif;
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
+        text-align: center;
     }
 
     #pressBtn {
-        font-size: 4rem;
-        padding: 40px 80px;
+        font-size: clamp(2.5rem, 8vw, 4rem);
+        padding: clamp(20px, 6vw, 40px) clamp(40px, 10vw, 80px);
         border-radius: 20px;
         border: none;
         background: red;
@@ -26,51 +33,54 @@
         cursor: pointer;
         box-shadow: 0 0 30px rgba(255,0,0,0.8);
         animation: pulse 1.5s infinite;
+        position: relative;
+        z-index: 2;
     }
 
     @keyframes pulse {
         0% { transform: scale(1); }
-        50% { transform: scale(1.1); }
+        50% { transform: scale(1.08); }
         100% { transform: scale(1); }
     }
 
     #content {
         display: none;
-        text-align: center;
+        padding: 20px;
         z-index: 2;
     }
 
     h1 {
-        font-size: 4rem;
-        margin-top: 20px;
+        font-size: clamp(2rem, 7vw, 4rem);
+        margin: 20px 0;
     }
 
     img {
-        max-width: 300px;
+        width: min(80vw, 320px);
         border-radius: 20px;
-        margin-top: 20px;
         box-shadow: 0 0 20px white;
+        margin-top: 20px;
     }
 
     .balloon {
         position: absolute;
         bottom: -150px;
-        width: 60px;
-        height: 80px;
+        width: 50px;
+        height: 70px;
         border-radius: 50%;
-        animation: float 6s linear infinite;
+        animation: float linear infinite;
+        z-index: 1;
     }
 
     @keyframes float {
         0% { transform: translateY(0); }
-        100% { transform: translateY(-120vh); }
+        100% { transform: translateY(-130vh); }
     }
 
     canvas {
         position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 1;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
     }
 </style>
 </head>
@@ -86,21 +96,34 @@
 
 <canvas id="fireworks"></canvas>
 
+<audio id="sound">
+    <source src="pop.mp3" type="audio/mpeg">
+</audio>
+
 <script>
 const btn = document.getElementById('pressBtn');
 const content = document.getElementById('content');
 const canvas = document.getElementById('fireworks');
 const ctx = canvas.getContext('2d');
+const sound = document.getElementById('sound');
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
 
-btn.onclick = () => {
+btn.addEventListener('click', () => {
     btn.style.display = 'none';
     content.style.display = 'block';
+
+    sound.currentTime = 0;
+    sound.play();
+
     startFireworks();
     createBalloons();
-};
+});
 
 function createBalloons() {
     for (let i = 0; i < 15; i++) {
@@ -119,7 +142,7 @@ function startFireworks() {
     setInterval(() => {
         fireworks.push({
             x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height / 2,
+            y: Math.random() * canvas.height * 0.5,
             r: 0
         });
     }, 400);
